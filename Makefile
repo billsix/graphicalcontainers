@@ -42,6 +42,28 @@ qt-demo: build ## run the qt6 demo
 		bash -c "/usr/lib64/qt6/examples/widgets/gallery/bin/gallery"
 
 
+.PHONY: glxgears
+glxgears: build ## run the qt6 demo
+	$(PODMAN_CMD) run \
+		--rm \
+		-it \
+		-e DISPLAY=$(DISPLAY) \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(CONTAINER_NAME) \
+		bash -c "glxgears"
+
+.PHONY: vkcube
+vkcube: build ## run the qt6 demo
+	$(PODMAN_CMD) run \
+		--rm \
+		-it \
+		-e DISPLAY=$(DISPLAY) \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(CONTAINER_NAME) \
+		bash -c "vkcube"
+
+
+
 
 .PHONY: help
 help:

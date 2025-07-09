@@ -22,8 +22,13 @@ RUN dnf update -y && \
     libXres \
     libXv \
     libXxf86vm \
-    libglvnd-gles && \
+    libglvnd-gles \
+    mesa-demos \
+    vulkan-tools && \
     dnf clean all
+
+RUN dnf install -y \
+
 
 # Set a default command to keep the container running for interaction
 CMD ["bash"]
