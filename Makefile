@@ -1,5 +1,7 @@
+.DEFAULT_GOAL := help
+
 CONTAINER_NAME = graphicsdemo
-IMAGE_NAME = fedora:44
+IMAGE_NAME = graphicsdemoimage
 PODMAN_CMD = podman
 
 .PHONY: all
@@ -9,12 +11,38 @@ all: build run ## Build the image and run it
 build: ## Build the image
 	$(PODMAN_CMD) build -t $(CONTAINER_NAME) -f Dockerfile .
 
-.PHONY: run
-run: build ## run the image
+.PHONY: shell
+shell: build ## run the image
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
 		-e DISPLAY=$(DISPLAY) \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
-		$(CONTAINCONTAINER_NAME) \
+		$(CONTAINER_NAME) \
 		bash
+
+.PHONY: gtk4-demo
+gtk4-demo: build ## run the gtk4-demo
+	$(PODMAN_CMD) run \
+		--rm \
+		-it \
+		-e DISPLAY=$(DISPLAY) \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(CONTAINER_NAME) \
+		bash -c "gtk4-demo"
+
+.PHONY: qt-demo
+qt-demo: build ## run the qt6 demo
+	$(PODMAN_CMD) run \
+		--rm \
+		-it \
+		-e DISPLAY=$(DISPLAY) \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(CONTAINER_NAME) \
+		bash -c "/usr/lib64/qt6/examples/widgets/gallery/bin/gallery"
+
+
+
+.PHONY: help
+help:
+	@grep --extended-regexp '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

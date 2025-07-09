@@ -1,14 +1,28 @@
 # Dockerfile for fedora-demos
-FROM fedora:44
+FROM fedora:42
 
 # Install necessary packages for GTK and Qt demos, and graphics forwarding
 RUN dnf update -y && \
     dnf install -y \
-    gtk3-demos \
-    qt5-qtbase-gui \
-    qt5-qtbase-examples \
-    xorg-x11-server-utils \
-    mesa-dri-drivers && \
+    mesa-dri-drivers  \
+    gtk4-demo \
+    qt6-qtbase-examples \
+    libXScrnSaver \
+    libXtst \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXfixes \
+    libXft \
+    libXi \
+    libXinerama \
+    libXmu \
+    libXrandr \
+    libXrender \
+    libXres \
+    libXv \
+    libXxf86vm \
+    libglvnd-gles && \
     dnf clean all
 
 # Set a default command to keep the container running for interaction
