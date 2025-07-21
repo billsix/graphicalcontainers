@@ -27,7 +27,6 @@ RUN dnf update -y && \
     vulkan-tools && \
     dnf clean all
 
-RUN dnf install -y \
 
 
 # Set a default command to keep the container running for interaction
