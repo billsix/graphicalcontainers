@@ -1,5 +1,5 @@
 # Dockerfile for fedora-demos
-FROM fedora:42
+FROM registry.fedoraproject.org/fedora:42
 
 # Install necessary packages for GTK and Qt demos, and graphics forwarding
 RUN dnf update -y && \
