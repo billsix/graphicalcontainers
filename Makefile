@@ -4,6 +4,11 @@ CONTAINER_NAME = graphicsdemo
 IMAGE_NAME = graphicsdemoimage
 PODMAN_CMD = podman
 
+USE_X = -e DISPLAY=$(DISPLAY) \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	--security-opt label=type:container_runtime_t
+
+
 .PHONY: all
 all: build run ## Build the image and run it
 
@@ -16,8 +21,7 @@ shell: build ## run the image
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		bash
 
@@ -26,8 +30,7 @@ gtk4-demo: build ## run the gtk4-demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		bash -c "gtk4-demo"
 
@@ -36,8 +39,7 @@ qt-demo: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		bash -c "/usr/lib64/qt6/examples/widgets/gallery/bin/gallery"
 
@@ -47,8 +49,7 @@ glxgears: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		bash -c "glxgears"
 
@@ -57,8 +58,7 @@ vkcube: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		bash -c "vkcube"
 
