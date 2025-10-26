@@ -2,7 +2,8 @@
 FROM registry.fedoraproject.org/fedora:42
 
 # Install necessary packages for GTK and Qt demos, and graphics forwarding
-RUN dnf update -y && \
+RUN echo "keepcache=True" >> /etc/dnf/dnf.conf && \
+    dnf upgrade -y && \
     dnf install -y \
     mesa-dri-drivers  \
     gtk4-demo \
@@ -24,8 +25,7 @@ RUN dnf update -y && \
     libXxf86vm \
     libglvnd-gles \
     mesa-demos \
-    vulkan-tools && \
-    dnf clean all
+    vulkan-tools
 
 
 
