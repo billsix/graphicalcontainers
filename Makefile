@@ -20,10 +20,10 @@ WAYLAND_FLAGS_FOR_CONTAINER = -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
                               -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 
 .PHONY: all
-all: build run ## Build the image and run it
+all: image run ## Build the image and run it
 
-.PHONY: build
-build: ## Build the image
+.PHONY: image
+image: ## Build the image
 	# cache rpm packages
 	mkdir -p $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5
 	mkdir -p $(PACKAGE_CACHE_ROOT)/var/lib/dnf
@@ -34,7 +34,7 @@ build: ## Build the image
                       .
 
 .PHONY: shell
-shell: build ## run the image
+shell: image ## run the image
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
@@ -44,7 +44,7 @@ shell: build ## run the image
 		bash
 
 .PHONY: gtk4-demo
-gtk4-demo: build ## run the gtk4-demo
+gtk4-demo: image ## run the gtk4-demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
@@ -54,7 +54,7 @@ gtk4-demo: build ## run the gtk4-demo
 		bash -c "gtk4-demo"
 
 .PHONY: qt-demo
-qt-demo: build ## run the qt6 demo
+qt-demo: image ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
@@ -65,7 +65,7 @@ qt-demo: build ## run the qt6 demo
 
 
 .PHONY: glxgears
-glxgears: build ## run the qt6 demo
+glxgears: image ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
@@ -75,7 +75,7 @@ glxgears: build ## run the qt6 demo
 		bash -c "glxgears"
 
 .PHONY: vkcube
-vkcube: build ## run the qt6 demo
+vkcube: image ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
