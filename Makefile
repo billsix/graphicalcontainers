@@ -4,10 +4,13 @@ CONTAINER_NAME = graphicsdemo
 IMAGE_NAME = graphicsdemoimage
 PODMAN_CMD = podman
 
-USE_X = -e DISPLAY=$(DISPLAY) \
+X_FLAGS_FOR_CONTAINER = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	--security-opt label=type:container_runtime_t
 
+WAYLAND_FLAGS_FOR_CONTAINER = -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
+                              -e "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" \
+                              -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 
 .PHONY: all
 all: build run ## Build the image and run it
@@ -21,7 +24,8 @@ shell: build ## run the image
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		bash
 
@@ -30,7 +34,8 @@ gtk4-demo: build ## run the gtk4-demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		bash -c "gtk4-demo"
 
@@ -39,7 +44,8 @@ qt-demo: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		bash -c "/usr/lib64/qt6/examples/widgets/gallery/bin/gallery"
 
@@ -49,7 +55,8 @@ glxgears: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		bash -c "glxgears"
 
@@ -58,7 +65,8 @@ vkcube: build ## run the qt6 demo
 	$(PODMAN_CMD) run \
 		--rm \
 		-it \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		bash -c "vkcube"
 
