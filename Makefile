@@ -4,13 +4,6 @@ CONTAINER_NAME = graphicsdemo
 IMAGE_NAME = graphicsdemoimage
 PODMAN_CMD = podman
 
-PACKAGE_CACHE_ROOT = ~/.cache/packagecache/fedora/42
-
-DNF_CACHE_TO_MOUNT = -v $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5:/var/cache/libdnf5:Z \
-	             -v $(PACKAGE_CACHE_ROOT)/var/lib/dnf:/var/lib/dnf:Z
-
-
-
 X_FLAGS_FOR_CONTAINER = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	--security-opt label=type:container_runtime_t
@@ -24,13 +17,9 @@ all: image run ## Build the image and run it
 
 .PHONY: image
 image: ## Build the image
-	# cache rpm packages
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/lib/dnf
 	$(PODMAN_CMD) build \
                       -t $(CONTAINER_NAME) \
                       -f Dockerfile \
-                      $(DNF_CACHE_TO_MOUNT) \
                       .
 
 .PHONY: shell

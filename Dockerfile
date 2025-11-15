@@ -2,7 +2,9 @@
 FROM registry.fedoraproject.org/fedora:42
 
 # Install necessary packages for GTK and Qt demos, and graphics forwarding
-RUN echo "keepcache=True" >> /etc/dnf/dnf.conf && \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    echo "keepcache=True" >> /etc/dnf/dnf.conf && \
     dnf upgrade -y && \
     dnf install -y \
     mesa-dri-drivers  \
