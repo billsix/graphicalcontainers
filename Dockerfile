@@ -1,33 +1,16 @@
 # Dockerfile for fedora-demos
 FROM registry.fedoraproject.org/fedora:44
 
-# Install necessary packages for GTK and Qt demos, and graphics forwarding
+# Package installation lives in entrypoint/01-install-base.sh so the same packages can be
+# installed on a bare Fedora host/guest (no container runtime), not only during this
+# build. The dnf cache mount + keepcache stay here (build plumbing that speeds rebuilds);
+# the script is runtime-agnostic. 01-install-base.sh does `dnf upgrade` + the install.
+COPY entrypoint/01-install-base.sh /usr/local/bin/
+
 RUN --mount=type=cache,target=/var/cache/libdnf5 \
     --mount=type=cache,target=/var/lib/dnf \
     echo "keepcache=True" >> /etc/dnf/dnf.conf && \
-    dnf upgrade -y && \
-    dnf install -y \
-    mesa-dri-drivers  \
-    gtk4-demo \
-    qt6-qtbase-examples \
-    libXScrnSaver \
-    libXtst \
-    libXcomposite \
-    libXcursor \
-    libXdamage \
-    libXfixes \
-    libXft \
-    libXi \
-    libXinerama \
-    libXmu \
-    libXrandr \
-    libXrender \
-    libXres \
-    libXv \
-    libXxf86vm \
-    libglvnd-gles \
-    mesa-demos \
-    vulkan-tools
+    /usr/local/bin/01-install-base.sh
 
 
 
