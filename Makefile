@@ -22,15 +22,29 @@ image: ## Build the image
                       -f Dockerfile \
                       .
 
-.PHONY: shell
-shell: image ## run the image
-	$(PODMAN_CMD) run \
-		--rm \
-		-it \
+# --- shell / shell-exec share ONE container invocation, defined here so the two
+# targets can never drift. Scoped to this pair ONLY. See runClaudeInContainer
+# tasks/add-shell-exec-target.md. Standardized into the template 2026-08-29: the
+# repo is now mounted at REPO_MOUNT and shell.sh (bind-mounted) is the launcher.
+SHELL_RUN_FLAGS = \
+		--entrypoint /bin/bash \
+		-v $(shell pwd):/$(CONTAINER_NAME):Z \
+		-v ./entrypoint/shell.sh:/usr/local/bin/shell.sh:Z \
 		$(X_FLAGS_FOR_CONTAINER) \
-		$(WAYLAND_FLAGS_FOR_CONTAINER) \
-		$(CONTAINER_NAME) \
-		bash
+		$(WAYLAND_FLAGS_FOR_CONTAINER)
+
+REPO_MOUNT = /$(CONTAINER_NAME)
+
+SHELL_EXEC_ARGS = -c 'cd $(REPO_MOUNT) && $(if $(CMD),$(CMD),exec bash $(SCRIPT))'
+
+.PHONY: shell
+shell: image ## interactive shell in the demo image (repo mounted at /$(CONTAINER_NAME))
+	$(PODMAN_CMD) run --rm -it $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh
+
+.PHONY: shell-exec
+shell-exec: image ## run a script/command in the demo env (no TTY), e.g. make shell-exec CMD='glxgears'
+	@[ -n "$(SCRIPT)$(CMD)" ] || { echo 'usage: make shell-exec SCRIPT=<repo-relative path> | CMD="..."'; exit 2; }
+	$(PODMAN_CMD) run --rm $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh $(SHELL_EXEC_ARGS)
 
 .PHONY: gtk4-demo
 gtk4-demo: image ## run the gtk4-demo
