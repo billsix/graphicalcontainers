@@ -2,7 +2,16 @@
 
 CONTAINER_NAME = graphicsdemo
 IMAGE_NAME = graphicsdemoimage
-PODMAN_CMD = podman
+CONTAINER_CMD = podman
+
+# Extra flags for every container `run`. Auto-set when running nested inside a
+# runClaudeInContainer/runCrushInContainer sandbox (which exports NESTED_PODMAN=1,
+# making --cgroups=disabled apply so podman-in-podman works); empty — and
+# byte-identical behavior — on a normal host. Overridable:
+#   make shell PODMAN_RUN_FLAGS='--cgroups=disabled --network=host'
+# On `run` lines only, never `build` (podman build rejects --cgroups). Convention:
+# runClaudeInContainer tasks/reference/nested-podman-design.md.
+PODMAN_RUN_FLAGS ?= $(if $(filter 1,$(NESTED_PODMAN)),--cgroups=disabled)
 
 X_FLAGS_FOR_CONTAINER = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -12,12 +21,9 @@ WAYLAND_FLAGS_FOR_CONTAINER = -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
                               -e "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" \
                               -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 
-.PHONY: all
-all: image run ## Build the image and run it
-
 .PHONY: image
 image: ## Build the image
-	$(PODMAN_CMD) build \
+	$(CONTAINER_CMD) build \
                       -t $(CONTAINER_NAME) \
                       -f Dockerfile \
                       .
@@ -39,16 +45,19 @@ SHELL_EXEC_ARGS = -c 'cd $(REPO_MOUNT) && $(if $(CMD),$(CMD),exec bash $(SCRIPT)
 
 .PHONY: shell
 shell: image ## interactive shell in the demo image (repo mounted at /$(CONTAINER_NAME))
-	$(PODMAN_CMD) run --rm -it $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm -it $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh
 
 .PHONY: shell-exec
 shell-exec: image ## run a script/command in the demo env (no TTY), e.g. make shell-exec CMD='glxgears'
 	@[ -n "$(SCRIPT)$(CMD)" ] || { echo 'usage: make shell-exec SCRIPT=<repo-relative path> | CMD="..."'; exit 2; }
-	$(PODMAN_CMD) run --rm $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh $(SHELL_EXEC_ARGS)
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm $(SHELL_RUN_FLAGS) $(CONTAINER_NAME) /usr/local/bin/shell.sh $(SHELL_EXEC_ARGS)
+
+.PHONY: run
+run: gtk4-demo ## Build the image and run the default demo (gtk4-demo)
 
 .PHONY: gtk4-demo
 gtk4-demo: image ## run the gtk4-demo
-	$(PODMAN_CMD) run \
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) \
 		--rm \
 		-it \
 		$(X_FLAGS_FOR_CONTAINER) \
@@ -58,7 +67,7 @@ gtk4-demo: image ## run the gtk4-demo
 
 .PHONY: qt-demo
 qt-demo: image ## run the qt6 demo
-	$(PODMAN_CMD) run \
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) \
 		--rm \
 		-it \
 		$(X_FLAGS_FOR_CONTAINER) \
@@ -68,8 +77,8 @@ qt-demo: image ## run the qt6 demo
 
 
 .PHONY: glxgears
-glxgears: image ## run the qt6 demo
-	$(PODMAN_CMD) run \
+glxgears: image ## run glxgears
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) \
 		--rm \
 		-it \
 		$(X_FLAGS_FOR_CONTAINER) \
@@ -78,8 +87,8 @@ glxgears: image ## run the qt6 demo
 		bash -c "glxgears"
 
 .PHONY: vkcube
-vkcube: image ## run the qt6 demo
-	$(PODMAN_CMD) run \
+vkcube: image ## run vkcube
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) \
 		--rm \
 		-it \
 		$(X_FLAGS_FOR_CONTAINER) \

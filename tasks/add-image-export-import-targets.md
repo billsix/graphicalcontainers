@@ -13,11 +13,12 @@ from my container-per-project Makefile contract. Add them, matching the projects
 ## What to add (per the contract)
 
 - **`image-export`** — `## export the OCI image to a timestamped tar in the repo root`:
-  `$(PODMAN_CMD) save $(IMAGE_NAME) -o $(IMAGE_NAME)-$(shell date +%m-%d-%Y_%H-%M-%S).tar`.
-  (graphicalcontainer uses `PODMAN_CMD` and `IMAGE_NAME = graphicsdemoimage` /
-  `CONTAINER_NAME = graphicsdemo` — use its **image** name for `save`.)
+  `$(CONTAINER_CMD) save $(IMAGE_NAME) -o $(IMAGE_NAME)-$(shell date +%m-%d-%Y_%H-%M-%S).tar`.
+  (graphicalcontainer uses `IMAGE_NAME = graphicsdemoimage` / `CONTAINER_NAME = graphicsdemo`
+  — use its **image** name for `save`. Its command variable was renamed
+  `PODMAN_CMD` → `CONTAINER_CMD` on 2026-08-29.)
 - **`image-import`** — `## import an OCI image tar: make image-import FILE=foo.tar`:
-  `$(PODMAN_CMD) load -i $(FILE)`.
+  `$(CONTAINER_CMD) load -i $(FILE)`.
 - Both **`.PHONY`**, both `## `-documented (they'll appear in `make help`).
 - **Gitignore the artifacts** — add `*.tar` to `.gitignore` (create one if absent); the tars are large
   and must never be committed.
